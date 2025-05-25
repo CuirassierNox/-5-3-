@@ -72,3 +72,6 @@
 3. `OnlyGasGiantDecorator` — пропускает все, кроме `GasGiant`.
 
 ---
+
+### Результат
+![Результат](result.png)
