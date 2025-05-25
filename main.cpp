@@ -347,6 +347,54 @@ public:
 
 //----------------
 
+class CollisionTemplate {
+public:
+    virtual ~CollisionTemplate() {}
+    void Collide(Planet* a, Planet* b) {
+        DisplayIntro(a, b);
+        if (IsCollisionAllowed(a, b)) {
+            PerformCollision(a, b);
+        } else {
+            DisplayAbort();
+        }
+    }
+
+protected:
+    virtual void DisplayIntro(Planet* a, Planet* b) {
+        cout << "Начинается столкновение: " << endl;
+    }
+
+    virtual bool IsCollisionAllowed(Planet* a, Planet* b) = 0;
+    virtual void PerformCollision(Planet* a, Planet* b) = 0;
+
+    virtual void DisplayAbort() {
+        cout << "Столкновение не разрешено!" << endl;
+    }
+};
+
+class EvenMoonsCollision : public CollisionTemplate {
+protected:
+    bool IsCollisionAllowed(Planet* a, Planet* b) override {
+        return (a->GetMoons() % 2 == 0 && b->GetMoons() % 2 == 0);
+    }
+
+    void PerformCollision(Planet* a, Planet* b) override {
+        a->collideWith(b);
+    }
+};
+
+class OddMoonsCollision : public CollisionTemplate {
+    bool IsCollisionAllowed(Planet* a, Planet* b) override {
+        return (a->GetMoons() % 2 == 1 || b->GetMoons() % 2 == 1);
+    }
+    void PerformCollision(Planet* a, Planet* b) override {
+        a->collideWith(b);
+    }
+};
+
+
+//----------------
+
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     setlocale(LC_ALL, "ru_RU.UTF-8");
@@ -355,6 +403,7 @@ int main() {
     PlanetContainer Pcontainer;
     VectorPlanetContainer Vcontainer;
 
+    //-------------
     Planet* p1 = new GasGiant("Юпитер", 79);
     p1->SetEvolutionStrategy(new LoseAtmosphere());
 
@@ -367,7 +416,7 @@ int main() {
     p1->evolve();
     p2->evolve();
     p3->evolve();
-
+    //-------------
 
     for(int i=0;i<3;i++){
         Pcontainer.add(PlanetFactory::createRandom());
@@ -403,10 +452,26 @@ int main() {
 
 
     cout << endl;
-
+    //----Старый-вызов----
     Planet* first = Pcontainer.GetElement(0);
     Planet* second = Pcontainer.GetElement(1);
     first->collideWith(second);
+    //-------------
+    cout << endl;
+
+    //----Новый-вызов----
+    CollisionTemplate* collisionEven = new EvenMoonsCollision();
+    collisionEven->Collide(p1, p2);
+    delete collisionEven;
+
+    CollisionTemplate* collisionOdd = new OddMoonsCollision();
+    collisionOdd->Collide(p1, p2);
+    delete collisionOdd;
+    //-------------
+
+    delete p1;
+    delete p2;
+    delete p3;
 
     Pcontainer.clear();
     Vcontainer.clear();
