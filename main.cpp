@@ -13,27 +13,43 @@ enum class Planets:int
     Other=0
 };
 
+class Planet;
+
+class EvolutionStrategy {
+public:
+    virtual ~EvolutionStrategy() {}
+    virtual void Evolve(Planet* planet) = 0;
+};
+
 class Planet {
 protected:
     string name;
     int moons;
+    EvolutionStrategy* strategy = nullptr;
 public:
     Planet(string n, int m) : name(n),moons(m) {}
+
+    void SetEvolutionStrategy(EvolutionStrategy* strat) {
+        if (strategy) delete strategy;
+        strategy = strat;
+    }
     virtual void displayInfo() {
         cout << "Планета: " << name << endl;
     }
     virtual void evolve() {
         cout << name << " изменяется..." << endl;
+        if (strategy) strategy->Evolve(this);
     }
     virtual void collideWith(Planet* p) {
         cout << name << " сталкивается с " << p->name << endl;
     }
-    virtual ~Planet() {}
+    virtual ~Planet() {if (strategy) delete strategy;}
 
     int GetMoons() const {
          return moons;}
 
 };
+
 
 class GasGiant : public Planet {
 public:
@@ -286,7 +302,7 @@ private:
     }
 };
 
-//----------------
+
 
 //-----Адаптер----
 
@@ -308,6 +324,29 @@ public:
 
 //----------------
 
+class LoseAtmosphere : public EvolutionStrategy {
+public:
+    void Evolve(Planet* planet) override {
+        cout << planet->GetMoons() << " лун исчезают, атмосфера уходит в космос." << endl;
+    }
+};
+
+class GainVolcanoes : public EvolutionStrategy {
+public:
+    void Evolve(Planet* planet) override {
+        cout << "На поверхности появляются новые вулканы!" << endl;
+    }
+};
+
+class FreezeOrBoil : public EvolutionStrategy {
+public:
+    void Evolve(Planet* planet) override {
+        cout << "Температура изменяется до крайностей, мир замерзает или кипит!" << endl;
+    }
+};
+
+//----------------
+
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     setlocale(LC_ALL, "ru_RU.UTF-8");
@@ -315,6 +354,20 @@ int main() {
 
     PlanetContainer Pcontainer;
     VectorPlanetContainer Vcontainer;
+
+    Planet* p1 = new GasGiant("Юпитер", 79);
+    p1->SetEvolutionStrategy(new LoseAtmosphere());
+
+    Planet* p2 = new TerrestrialPlanet("Марс", 2);
+    p2->SetEvolutionStrategy(new GainVolcanoes());
+
+    Planet* p3 = new OceanWorld("Эвропа", 1);
+    p3->SetEvolutionStrategy(new FreezeOrBoil());
+
+    p1->evolve();
+    p2->evolve();
+    p3->evolve();
+
 
     for(int i=0;i<3;i++){
         Pcontainer.add(PlanetFactory::createRandom());
