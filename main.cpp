@@ -327,21 +327,21 @@ public:
 class LoseAtmosphere : public EvolutionStrategy {
 public:
     void Evolve(Planet* planet) override {
-        cout << planet->GetMoons() << " лун исчезают, атмосфера уходит в космос." << endl;
+        cout << planet->GetMoons() << " лун исчезают, атмосфера уходит в космос" << endl;
     }
 };
 
 class GainVolcanoes : public EvolutionStrategy {
 public:
     void Evolve(Planet* planet) override {
-        cout << "На поверхности появляются новые вулканы!" << endl;
+        cout << "На поверхности появляются новые вулканы" << endl;
     }
 };
 
 class FreezeOrBoil : public EvolutionStrategy {
 public:
     void Evolve(Planet* planet) override {
-        cout << "Температура изменяется до крайностей, мир замерзает или кипит!" << endl;
+        cout << "Температура изменяется, мир замерзает или кипит" << endl;
     }
 };
 
